@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: chatplatform_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tjv
+      POSTGRES_USER: tjv
+      POSTGRES_PASSWORD: tjv
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - chatplatform_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tjv -d tjv"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatplatform_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - chatplatform_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "chatplatform_redis_password", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    container_name: chatplatform_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      
+      JWT_PUBLIC_KEY_PATH: /app/keys/public.pem
+      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      JWT_EXPIRE_ACCESS: ${JWT_EXPIRE_ACCESS}
+      
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      
+      OPENSEA_MCP_URL: ${OPENSEA_MCP_URL}
+      OPENSEA_BEARER_TOKEN: ${OPENSEA_BEARER_TOKEN}
+      TWEETSCOUT_API_KEY: ${TWEETSCOUT_API_KEY}
+      
+      GRAPHQL_ENDPOINT: ${GRAPHQL_ENDPOINT}
+      
+      # Email (Mailtrap API from .env)
+      MAILTRAP_API_TOKEN: ${MAILTRAP_API_TOKEN}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@basedagent.io}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-ChatPlatform}
+      
+      APP_HOST: ${APP_HOST}
+      APP_PORT: ${APP_PORT}
+      APP_WORKERS: ${APP_WORKERS}
+    volumes:
+      - ./keys:/app/keys:ro
+    networks:
+      - chatplatform_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  chatplatform_network:
+    driver: bridge
