@@ -199,4 +199,21 @@ class RedisClient:
                 await self._redis.delete(type_events_key)
         except Exception as e:
             raise RedisOperationError(f"Failed to clear user events: {str(e)}")
+    
+    async def set_recent_event(self, user_wallet: str, timestamp: float, action_type: str, ttl: int = 10) -> None:
+        try:
+            redis_key = f"recent_event:{user_wallet}:{timestamp}:{action_type}"
+            event_data = True
+            
+            await self._redis.set(redis_key, event_data, ex=ttl)
+        except Exception as e:
+            raise RedisOperationError(f"Failed to set recent event: {str(e)}")
+    
+    async def check_recent_event_exists(self, user_wallet: str, timestamp: float, action_type: str) -> bool:
+        try:
+            redis_key = f"recent_event:{user_wallet}:{timestamp}:{action_type}"
+            exists = await self._redis.exists(redis_key)
+            return bool(exists)
+        except Exception as e:
+            raise RedisOperationError(f"Failed to check recent event existence: {str(e)}")
 
