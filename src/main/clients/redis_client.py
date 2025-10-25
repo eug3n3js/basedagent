@@ -203,7 +203,7 @@ class RedisClient:
     async def set_recent_event(self, user_wallet: str, timestamp: float, action_type: str, ttl: int = 10) -> None:
         try:
             redis_key = f"recent_event:{user_wallet}:{timestamp}:{action_type}"
-            event_data = True
+            event_data = "1"  # Сохраняем строку "1" вместо boolean True
             
             await self._redis.set(redis_key, event_data, ex=ttl)
         except Exception as e:
