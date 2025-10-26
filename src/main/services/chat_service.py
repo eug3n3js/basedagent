@@ -113,7 +113,7 @@ class ChatService:
             try:
                 response = await asyncio.wait_for(
                     llm_client.get_ai_response(message_create.content, prompt),
-                    timeout=30
+                    timeout=60
                 )
             except asyncio.TimeoutError:
                 # Если таймаут истек, создаем сообщение об ошибке
