@@ -1,23 +1,19 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     container_name: chatplatform_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: tjv
-      POSTGRES_USER: tjv
-      POSTGRES_PASSWORD: tjv
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
       - chatplatform_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tjv -d tjv"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,14 +23,12 @@ services:
     container_name: chatplatform_redis
     restart: unless-stopped
     command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
       - chatplatform_network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "chatplatform_redis_password", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -44,7 +38,7 @@ services:
     container_name: chatplatform_app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${APP_PORT}:3000"
     env_file:
       - .env
     environment:
