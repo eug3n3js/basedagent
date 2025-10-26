@@ -51,7 +51,7 @@ async def get_chat_messages(chat_id: int,
     messages = await chat_service.get_chat_messages(chat_id, limit, offset)
     return JSONResponse(content=jsonable_encoder(messages, exclude_none=True))
 
-@chat_router.post("/{chat_id}/message/")
+@chat_router.post("/{chat_id}/message/new")
 async def process_message(message_create: MessageCreate,
                           current_user: AccessData = Depends(get_access_data),
                           chat_service: ChatService = Depends(ChatService.get_instance)) -> JSONResponse:
@@ -64,7 +64,7 @@ async def process_message(message_create: MessageCreate,
         )
     )
 
-@chat_router.post("/{chat_id}/message/{task_name}")
+@chat_router.post("/{chat_id}/message/new/{task_name}")
 async def process_message_task(message_create: MessageCreate,
                                task_name: str,
                                current_user: AccessData = Depends(get_access_data),
