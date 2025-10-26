@@ -2,11 +2,11 @@ import json
 import os
 from typing import Any
 import redis.asyncio as redis
-from exceptions.redis_exceptions import RedisConnectionError, RedisOperationError
-from dto.models import MessageEntity
-from dto.models.message_dto import MessageRole
+from exceptions import RedisConnectionError, RedisOperationError
+from dto import MessageEntity
+from enums import MessageRole
 from datetime import datetime
-from dto.models.event_dto import DepositEvent, SpendEvent
+from dto import DepositEvent, SpendEvent
 
 
 class RedisClient:
@@ -203,7 +203,7 @@ class RedisClient:
     async def set_recent_event(self, user_wallet: str, timestamp: float, action_type: str, ttl: int = 10) -> None:
         try:
             redis_key = f"recent_event:{user_wallet}:{timestamp}:{action_type}"
-            event_data = "1"  # Сохраняем строку "1" вместо boolean True
+            event_data = "1" 
             
             await self._redis.set(redis_key, event_data, ex=ttl)
         except Exception as e:

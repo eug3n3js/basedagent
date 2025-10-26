@@ -3,7 +3,7 @@ from sqlalchemy import select, update
 
 from domain import User
 from dto import UserEntity
-from exceptions.user_exceptions import UserNotFoundError, UserAlreadyExistsError
+from exceptions import UserNotFoundError, UserAlreadyExistsError
 from utils.db_helper import DatabaseHelper
 
 

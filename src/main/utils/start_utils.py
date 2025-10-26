@@ -43,7 +43,7 @@ async def startup():
     ChatService.initialize(chat_dao, message_dao, user_dao, redis_client)
 
     indexer_client = IndexerClient()
-    IndexerService.initialize(indexer_client, NotificationService.get_instance())
+    IndexerService.initialize(indexer_client, NotificationService.get_instance(), redis_client)
     asyncio.create_task(IndexerService.get_instance().start_periodic_queries(10))
 
 

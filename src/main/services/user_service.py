@@ -1,6 +1,6 @@
 from dto import UserEntity
 from persistence import UserDAO
-from exceptions.user_exceptions import UserNotFoundError, UserEmailAlreadyExistsError
+from exceptions import UserNotFoundError, UserEmailAlreadyExistsError
 
 
 class UserService:

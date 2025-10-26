@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from dto.models.auth_dto import AccessData
-from services.user_service import UserService
+from dto import AccessData
+from services import UserService
 from utils.auth_utils import get_access_data
 
 user_router = APIRouter(prefix="/user")

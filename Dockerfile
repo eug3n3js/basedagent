@@ -27,6 +27,6 @@ COPY . .
 
 # # Открываем порт
 # EXPOSE 8000
-
+ENV PYTHONUNBUFFERED=1
 # Команда по умолчанию
 CMD ["python", "src/main/main.py"]

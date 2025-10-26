@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from dto.models.auth_dto import AccessData
-from dto.models.message_dto import MessageCreate, MessageResponse
-from dto.converters.message_converter import MessageConverter
-from services.chat_service import ChatService
+from dto import AccessData
+from dto import MessageCreate, MessageResponse
+from dto import MessageConverter
+from services import ChatService
 from utils.auth_utils import get_access_data
 
 chat_router = APIRouter(prefix="/chat")

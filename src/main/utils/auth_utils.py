@@ -1,8 +1,8 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from dto.models.auth_dto import AccessData
+from dto import AccessData
 from utils.jwt_utils import decode_jwt
-from exceptions.auth_exceptions import InvalidTokenError
+from exceptions import InvalidTokenError
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="/login")
 

@@ -2,7 +2,7 @@ import os
 import jwt
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
-from exceptions.auth_exceptions import InvalidTokenError, TokenExpiredError
+from exceptions import InvalidTokenError, TokenExpiredError
 
 
 def encode_jwt(payload: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:

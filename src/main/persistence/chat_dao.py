@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 
 from domain import Chat
 from dto import ChatEntity
-from exceptions.chat_exceptions import ChatNotFoundError
+from exceptions import ChatNotFoundError
 from utils.db_helper import DatabaseHelper
 
 

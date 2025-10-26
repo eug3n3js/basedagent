@@ -1,12 +1,12 @@
 import asyncio
 import time
 import logging
-from clients.indexer_client import IndexerClient
-from clients.redis_client import RedisClient
-from dto.converters.indexer_converter import IndexerConverter
-from dto.models.indexer_dto import GraphQLResponse, CreditsDeposited, CreditsDepositedETH, CreditsUsed
-from services.notification_service import NotificationService
-from services.user_service import UserService
+from clients import IndexerClient
+from clients import RedisClient
+from dto import IndexerConverter
+from dto import GraphQLResponse, CreditsDeposited, CreditsDepositedETH, CreditsUsed
+from services import NotificationService
+from services import UserService
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class IndexerService:
             self.last_timestamp = time.time() - interval_seconds * 2
             await self._process_indexer_data()
             await asyncio.sleep(interval_seconds)
-            self.recent_event_ttl = interval_seconds * 2
+            self.recent_event_ttl = interval_seconds * 3
 
     async def stop_periodic_queries(self):
         self._running = False
@@ -60,8 +60,6 @@ class IndexerService:
     async def _process_indexer_data(self):
         try:
             graphql_response = await self.indexer_client.get_credits_data(self.last_timestamp)
-            print("graphql_response")
-            print(graphql_response)
             await self._process_deposit_token_events(graphql_response.CreditSystem_CreditsDeposited or [])
             await self._process_deposit_eth_events(graphql_response.CreditSystem_CreditsDepositedETH or [])
             await self._process_spend_events(graphql_response.CreditSystem_CreditsUsed or [])
@@ -100,7 +98,6 @@ class IndexerService:
             for credit_used in credit_used:
                 if await self.redis_client.check_recent_event_exists(credit_used.user, float(credit_used.timestamp), "spend"):
                     continue
-                
                 spend_event = IndexerConverter.from_credits_used_to_spend_event(credit_used)
                 await UserService.get_instance().update_balance_by_wallet(spend_event.user, spend_event.amount)
                 await self.notification_service.store_spend_event(spend_event)

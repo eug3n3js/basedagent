@@ -1,6 +1,6 @@
-from dto.models.event_dto import DepositEvent, SpendEvent
-from clients.redis_client import RedisClient
-from exceptions.redis_exceptions import RedisOperationError
+from dto import DepositEvent, SpendEvent
+from clients import RedisClient
+from exceptions import RedisOperationError
 
 
 class NotificationService:  
@@ -37,11 +37,8 @@ class NotificationService:
                 "data": deposit_event.dict(),
                 "timestamp": deposit_event.timestamp
             }
-            print(event_data)
             await self.redis_client.store_user_event(deposit_event.user, event_data)
             events_data = await self.redis_client.get_user_deposit_events(deposit_event.user)
-            print("get events_data")
-            print(events_data)
         except Exception as e:
             raise RedisOperationError(f"Failed to store deposit event: {str(e)}")
     

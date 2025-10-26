@@ -1,6 +1,6 @@
 import os
 import aiohttp
-from exceptions.email_exceptions import EmailSendError, EmailConfigurationError
+from exceptions import EmailSendError, EmailConfigurationError
 
 
 class EmailClient:

@@ -64,7 +64,6 @@ class IndexerClient:
         try:
             response_data = await self._make_graphql_request(query, variables)
             data = response_data.get("data", {})
-            print(data)
             return GraphQLResponse(**data)
         except Exception as e:
             raise IndexerQueryError(f"Failed to parse GraphQL response: {str(e)}")

@@ -1,6 +1,6 @@
 from eth_account import Account
 from eth_account.messages import encode_defunct
-from exceptions.wallet_exceptions import WalletVerificationError
+from exceptions import WalletVerificationError
 
 
 def verify_signature(wallet_address: str, message: str, signature: str) -> bool:

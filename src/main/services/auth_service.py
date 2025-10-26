@@ -2,7 +2,7 @@ from .user_service import UserService
 from clients import EmailClient, RedisClient
 from constants import SIGN_MESSAGE
 from dto import UserEntity
-from dto.models.auth_dto import WalletAuthRequest, SendEmailCodeRequest, VerifyEmailCodeRequest, TokenResponse
+from dto import WalletAuthRequest, SendEmailCodeRequest, VerifyEmailCodeRequest, TokenResponse
 from exceptions import EmailError
 from persistence import UserDAO
 from utils.helpers import generate_unique_digit_code
