@@ -11,8 +11,15 @@ from utils.auth_utils import get_access_data
 
 chat_router = APIRouter(prefix="/chat")
 
+@chat_router.get("/")
+async def get_user_chats(limit: int = Query(50, ge=1, le=100),
+                         offset: int = Query(0, ge=0),
+                         current_user: AccessData = Depends(get_access_data),
+                         chat_service: ChatService = Depends(ChatService.get_instance)) -> JSONResponse:
+    chats = await chat_service.get_user_chats(current_user.sub, limit, offset)
+    return JSONResponse(content=jsonable_encoder(chats, exclude_none=True))
 
-@chat_router.post("/")
+@chat_router.post("/new")
 async def create_chat(current_user: AccessData = Depends(get_access_data),
                       chat_service: ChatService = Depends(ChatService.get_instance)) -> JSONResponse:
     chat = await chat_service.create(current_user.sub)
@@ -82,12 +89,3 @@ async def process_message_task(message_create: MessageCreate,
             exclude_none=True
         )
     )
-
-
-@chat_router.get("/")
-async def get_user_chats(limit: int = Query(50, ge=1, le=100),
-                         offset: int = Query(0, ge=0),
-                         current_user: AccessData = Depends(get_access_data),
-                         chat_service: ChatService = Depends(ChatService.get_instance)) -> JSONResponse:
-    chats = await chat_service.get_user_chats(current_user.sub, limit, offset)
-    return JSONResponse(content=jsonable_encoder(chats, exclude_none=True))
