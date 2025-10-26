@@ -59,6 +59,7 @@ class AuthService:
                 user = await self.user_dao.create(
                     UserEntity(
                         wallet_address=auth_request.wallet_address,
+                        remaining_chat_credits=2.0
                     )
                 )
             except UserAlreadyExistsError:
