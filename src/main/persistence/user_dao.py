@@ -23,7 +23,7 @@ class UserDAO:
 
         user = User(
             wallet_address=user.wallet_address.lower(),
-            email=user.email.lower() if user.email else None
+            email=user.email.lower() if user.email else None,
             remaining_chat_credits=user.remaining_chat_credits
         )
         
