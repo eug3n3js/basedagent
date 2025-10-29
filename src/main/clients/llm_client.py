@@ -5,7 +5,7 @@ from openai.types.chat import ChatCompletion
 
 from .redis_client import RedisClient
 from .mcp_client import MCPClient
-from constants import MODEL, MULTICALL_DEPTH, SYSTEM_PROMPT, INIT_PROMPT, PROMPT_LIST, \
+from constants import MODEL, MULTICALL_DEPTH, MASTER_PROMPT, CASE_PROMPT, \
     GENERATE_CHAT_TITLE_PROMPT
 from exceptions import LLMClientError
 
@@ -25,25 +25,23 @@ class LLMClient:
     async def get_ai_response(self, 
                               user_message: str, 
                               prompt_index: int = None) -> str:
-        if prompt_index is None:
-            prompt_index = await self.classification_prompt(user_message)
+        system_prompt = MASTER_PROMPT
+        if prompt_index is not None:
+            system_prompt += CASE_PROMPT.format(task_number=prompt_index)
         
         chat_history = await self._get_chat_history()
         
-        messages = [{
-            "role": "system",
-            "content": SYSTEM_PROMPT
-        }]
+        messages = []
 
         messages.extend(chat_history)
 
         messages.append({
-            "role": "user",
-            "content": user_message
+            "role": "system",
+            "content": system_prompt
         })
         messages.append({
-            "role": "system",
-            "content": PROMPT_LIST[prompt_index]
+            "role": "user",
+            "content": user_message
         })
 
         for i in range(MULTICALL_DEPTH):
@@ -99,24 +97,6 @@ class LLMClient:
         except Exception as e:
             print(f"❌ Error getting chat history from Redis: {e}")
             return []
-
-    async def classification_prompt(self, user_message: str) -> int:
-        messages = list()
-        messages.extend(await self._get_chat_history())
-        messages.append({
-            "role": "system",
-            "content": INIT_PROMPT.format(PROMPT_LIST=PROMPT_LIST)
-        })
-        messages.append({
-            "role": "user",
-            "content": user_message
-        })
-
-        response = await self._make_ai_request(messages)
-        try:
-            return int(response.choices[0].message.content)
-        except Exception as e:
-            return -1
 
     async def _make_ai_request(self, messages: list[dict], tools: list[dict] = None) -> ChatCompletion:
         request_params = {

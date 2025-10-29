@@ -8,7 +8,6 @@ class MCPClient:
         self.providers: list[MCPProvider] = []
         self.all_tools = []
         self.total_cost_usd = 0.0
-        self.setup_default_providers()
     
     async def initialize_all_providers(self) -> None:
         self.all_tools = []

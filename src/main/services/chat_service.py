@@ -109,14 +109,12 @@ class ChatService:
                 await self.chat_dao.update(ChatEntity(id=message_create.chat_id, title=title))
             prompt = PROMPT_MAP.get(task_name)
             
-            # Добавляем таймаут для генерации ответа (60 секунд)
             try:
                 response = await asyncio.wait_for(
                     llm_client.get_ai_response(message_create.content, prompt),
                     timeout=60
                 )
             except asyncio.TimeoutError:
-                # Если таймаут истек, создаем сообщение об ошибке
                 response = "Failed to generate response"
             ai_message = await self.message_dao.create(MessageEntity(
                 content=response,
