@@ -1,164 +1,164 @@
 # ChatPlatform
 
-Платформа для чатов с AI агентами, использующая аутентификацию через EVM кошельки.
+A platform for chatting with AI agents, using authentication via EVM wallets.
 
-## Особенности
+## Features
 
-- 🔐 **Аутентификация через кошелек**: Вход и регистрация только через подпись EVM кошелька
-- 💬 **Система чатов**: Создание и управление чатами с AI агентами
-- 📊 **Система лимитов**: Контроль использования AI сообщений и API вызовов
-- 🚀 **Высокая производительность**: Асинхронная архитектура на FastAPI
-- 🐳 **Docker**: Полная контейнеризация для легкого развертывания
-- 🧪 **Тестирование**: Покрытие unit-тестами основных компонентов
+- 🔐 **Wallet authentication**: Sign-in and registration via EVM wallet signature only
+- 💬 **Chat system**: Create and manage chats with AI agents
+- 📊 **Rate limiting**: Control usage of AI messages and API calls
+- 🚀 **High performance**: Asynchronous architecture on FastAPI
+- 🐳 **Docker**: Full containerization for easy deployment
+- 🧪 **Testing**: Unit test coverage of core components
 
-## Технологический стек
+## Tech stack
 
 - **Backend**: FastAPI (Python 3.11)
-- **База данных**: PostgreSQL 15
-- **Кэширование**: Redis 7
-- **Аутентификация**: JWT + EVM подписи
-- **Контейнеризация**: Docker + Docker Compose
-- **Тестирование**: Pytest
+- **Database**: PostgreSQL 15
+- **Caching**: Redis 7
+- **Auth**: JWT + EVM signatures
+- **Containerization**: Docker + Docker Compose
+- **Testing**: Pytest
 
-## Архитектура
+## Architecture
 
-Проект следует принципам Clean Architecture:
+The project follows Clean Architecture principles:
 
 ```
 src/main/
-├── domain/          # Модели данных (SQLAlchemy ORM)
-├── services/        # Бизнес-логика
-├── routers/         # API эндпоинты
-├── persistence/     # Доступ к данным (DAO)
-├── dto/            # Модели для API
-├── clients/        # Внешние сервисы
-├── exceptions/     # Пользовательские исключения
-└── utils/          # Утилиты
+├── domain/          # Data models (SQLAlchemy ORM)
+├── services/        # Business logic
+├── routers/         # API endpoints
+├── persistence/     # Data access (DAO)
+├── dto/            # API models (DTOs)
+├── clients/        # External services
+├── exceptions/     # Custom exceptions
+└── utils/          # Utilities
 ```
 
-## Основные сущности
+## Core entities
 
-### User (Пользователь)
-- `wallet_address`: EVM адрес кошелька (уникальный)
-- `email`: Email пользователя (опционально)
-- `ai_messages_limit`: Лимит AI сообщений
-- `ai_messages_used`: Использовано AI сообщений
-- `api_calls_limit`: Лимит API вызовов
-- `api_calls_used`: Использовано API вызовов
+### User
+- `wallet_address`: EVM wallet address (unique)
+- `email`: User email (optional)
+- `ai_messages_limit`: Limit for AI messages
+- `ai_messages_used`: Used AI messages
+- `api_calls_limit`: Limit for API calls
+- `api_calls_used`: Used API calls
 
-### Chat (Чат)
-- `title`: Название чата
-- `user_id`: ID владельца чата
-- `message_count`: Количество сообщений
-- `created_at`, `updated_at`: Временные метки
+### Chat
+- `title`: Chat title
+- `user_id`: Owner user ID
+- `message_count`: Number of messages
+- `created_at`, `updated_at`: Timestamps
 
-### Message (Сообщение)
-- `content`: Содержимое сообщения
-- `role`: Роль отправителя (USER/AI)
-- `chat_id`: ID чата
-- `user_id`: ID пользователя
-- `model_used`: Использованная AI модель (для AI сообщений)
-- `tokens_used`: Количество токенов (для AI сообщений)
+### Message
+- `content`: Message content
+- `role`: Sender role (USER/AI)
+- `chat_id`: Chat ID
+- `user_id`: User ID
+- `model_used`: AI model used (for AI messages)
+- `tokens_used`: Number of tokens (for AI messages)
 
-## API Эндпоинты
+## API endpoints
 
-### Аутентификация (`/auth`)
-- `POST /auth/authenticate` - Аутентификация (вход или регистрация) через подпись кошелька
-- `POST /auth/add-email` - Добавление email к существующему пользователю
-- `GET /auth/message` - Получение сообщения для подписи
+### Auth (`/auth`)
+- `POST /auth/authenticate` - Authenticate (sign-in or signup) via wallet signature
+- `POST /auth/add-email` - Add email to an existing user
+- `GET /auth/message` - Get a message for signing
 
-### Пользователи (`/user`)
-- `GET /user/profile` - Получение профиля
-- `PUT /user/profile` - Обновление профиля
-- `GET /user/limits` - Получение лимитов
-- `GET /user/wallet/{address}` - Получение пользователя по кошельку
+### Users (`/user`)
+- `GET /user/profile` - Get profile
+- `PUT /user/profile` - Update profile
+- `GET /user/limits` - Get limits
+- `GET /user/wallet/{address}` - Get user by wallet address
 
-### Чаты (`/chat`)
-- `POST /chat/` - Создание чата
-- `GET /chat/` - Получение чатов пользователя
-- `GET /chat/recent` - Недавние чаты
-- `GET /chat/{id}` - Получение чата по ID
-- `PUT /chat/{id}` - Обновление чата
-- `DELETE /chat/{id}` - Удаление чата
+### Chats (`/chat`)
+- `POST /chat/` - Create a chat
+- `GET /chat/` - Get user's chats
+- `GET /chat/recent` - Recent chats
+- `GET /chat/{id}` - Get chat by ID
+- `PUT /chat/{id}` - Update chat
+- `DELETE /chat/{id}` - Delete chat
 
-### Сообщения (`/message`)
-- `POST /message/` - Создание сообщения пользователя
-- `GET /message/chat/{id}` - Сообщения чата
-- `GET /message/chat/{id}/full` - Чат с сообщениями
-- `GET /message/chat/{id}/recent` - Последние сообщения
-- `GET /message/{id}` - Получение сообщения по ID
-- `PUT /message/{id}` - Обновление сообщения
-- `DELETE /message/{id}` - Удаление сообщения
+### Messages (`/message`)
+- `POST /message/` - Create a user message
+- `GET /message/chat/{id}` - Messages of a chat
+- `GET /message/chat/{id}/full` - Chat with messages
+- `GET /message/chat/{id}/recent` - Recent messages
+- `GET /message/{id}` - Get message by ID
+- `PUT /message/{id}` - Update message
+- `DELETE /message/{id}` - Delete message
 
-## Установка и запуск
+## Setup and run
 
-### 1. Клонирование репозитория
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd ChatPlatform/ChatApp
 ```
 
-### 2. Настройка окружения
+### 2. Configure environment
 ```bash
 cp .env .env
-# Отредактируйте .env файл с вашими настройками
+# Edit the .env file with your settings
 ```
 
-### 3. Генерация JWT ключей
+### 3. Generate JWT keys
 ```bash
 mkdir -p keys
-# Сгенерируйте RSA ключи для JWT
+# Generate RSA keys for JWT
 openssl genrsa -out keys/private.pem 2048
 openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 ```
 
-### 4. Запуск через Docker Compose
+### 4. Run with Docker Compose
 ```bash
 docker-compose up -d
 ```
 
-### 5. Запуск в режиме разработки
+### 5. Run in development mode
 ```bash
-# Создание виртуального окружения
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-# или
+# or
 venv\Scripts\activate     # Windows
 
-# Установка зависимостей
+# Install dependencies
 pip install -r requirements.txt
 
-# Запуск приложения (выберите один из способов):
+# Start the application (choose one):
 
-# Способ 1: Через run.py (рекомендуется)
+# Option 1: via run.py (recommended)
 python run.py
 
-# Способ 2: Через start_server.py
+# Option 2: via start_server.py
 python start_server.py
 
-# Способ 3: Через uvicorn напрямую
+# Option 3: via uvicorn directly
 python -m uvicorn src.main.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Тестирование
+## Testing
 
 ```bash
-# Запуск всех тестов
+# Run all tests
 pytest
 
-# Запуск с покрытием
+# Run with coverage
 pytest --cov=src
 
-# Запуск конкретного теста
+# Run a specific test
 pytest tests/test_auth_service.py
 ```
 
-## Конфигурация
+## Configuration
 
-Основные переменные окружения:
+Main environment variables:
 
 ```env
-# База данных
+# Database
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=chatplatform
@@ -176,54 +176,54 @@ JWT_PRIVATE_KEY_PATH=./keys/private.pem
 JWT_ALGORITHM=RS256
 JWT_EXPIRE_ACCESS=3600
 
-# Email (опционально)
+# Email (optional)
 EMAIL_SMTP_SERVER=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_ADDRESS=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
 
-# Приложение
+# App
 APP_HOST=0.0.0.0
 APP_PORT=8000
 APP_WORKERS=1
 ENVIRONMENT=development
 ```
 
-## Система лимитов
+## Rate limits
 
-Каждый пользователь имеет лимиты на:
-- **AI сообщения**: Количество сообщений, которые может отправить AI агент
-- **API вызовы**: Количество вызовов сторонних API
+Each user has limits for:
+- **AI messages**: Number of messages the AI agent can send
+- **API calls**: Number of external API calls
 
-Лимиты проверяются при:
-- Создании AI сообщений
-- Вызове внешних API
-- Обновлении профиля
+Limits are checked when:
+- Creating AI messages
+- Calling external APIs
+- Updating the profile
 
-## Безопасность
+## Security
 
-- **JWT токены**: RS256 алгоритм с приватными/публичными ключами
-- **Проверка подписей**: Валидация EVM подписей для аутентификации
-- **CORS**: Настроен для работы с фронтендом
-- **Валидация данных**: Pydantic модели для всех входных данных
-- **Обработка ошибок**: Глобальная обработка исключений
+- **JWT tokens**: RS256 algorithm with private/public keys
+- **Signature verification**: Validate EVM signatures for authentication
+- **CORS**: Configured for frontend integration
+- **Data validation**: Pydantic models for all inputs
+- **Error handling**: Global exception handling
 
-## Разработка
+## Development
 
-### Структура проекта
-- Следует принципам Clean Architecture
-- Разделение на слои: domain, services, routers, persistence
-- Использование dependency injection
-- Singleton паттерн для сервисов
+### Project structure
+- Follows Clean Architecture principles
+- Layered separation: domain, services, routers, persistence
+- Uses dependency injection
+- Singleton pattern for services
 
-### Добавление новых функций
-1. Создайте модель в `domain/`
-2. Добавьте DTO в `dto/models/`
-3. Создайте DAO в `persistence/`
-4. Реализуйте сервис в `services/`
-5. Добавьте роутер в `routers/`
-6. Напишите тесты в `tests/`
+### Adding new features
+1. Create a model in `domain/`
+2. Add a DTO in `dto/models/`
+3. Create a DAO in `persistence/`
+4. Implement a service in `services/`
+5. Add a router in `routers/`
+6. Write tests in `tests/`
 
-## Лицензия
+## License
 
 MIT License

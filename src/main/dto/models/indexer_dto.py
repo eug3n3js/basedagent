@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+
 class CreditsUsed(BaseModel):
     user: str
     amount: float

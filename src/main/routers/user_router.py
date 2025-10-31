@@ -15,3 +15,11 @@ async def get_profile(current_user: AccessData = Depends(get_access_data),
     user = await user_service.get_user_by_id(current_user.sub)
     return JSONResponse(content=jsonable_encoder(user, exclude_none=True))
 
+
+@user_router.get("/portfolio")
+async def get_portfolio(current_user: AccessData = Depends(get_access_data),
+                        user_service: UserService = Depends(UserService.get_instance)) -> JSONResponse:
+    user_portfolio = await user_service.get_user_profile(current_user.wallet_address)
+
+    return JSONResponse(content=jsonable_encoder(user_portfolio, exclude_none=True))
+

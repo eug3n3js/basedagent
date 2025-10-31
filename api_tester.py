@@ -228,6 +228,60 @@ class APITester:
             print(f"❌ Ошибка при получении профиля: {e}")
             return False
 
+    async def test_get_user_portfolio(self):
+        """Тест получения портфолио пользователя"""
+        print("\n💼 Тестируем получение портфолио пользователя...")
+        
+        if not self.current_user["access_token"]:
+            print("❌ Нет токена! Сначала выполните аутентификацию.")
+            return False
+        
+        try:
+            response = await self.client.get(
+                f"{self.base_url}/user/portfolio",
+                headers=self.get_headers()
+            )
+            self.print_response(response, "GET USER PORTFOLIO")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print("✅ Портфолио пользователя получено успешно!")
+                
+                # Проверяем структуру ответа
+                if "cryptocurrencies" in data:
+                    crypto_count = len(data["cryptocurrencies"])
+                    print(f"   📊 Криптовалют: {crypto_count}")
+                    if crypto_count > 0:
+                        print("   Топ-3 криптовалюты:")
+                        for i, crypto in enumerate(data["cryptocurrencies"][:], 1):
+                            symbol = crypto.get("symbol", "N/A")
+                            usd_total = crypto.get("usd_total", 0)
+                            print(f"      {i}. {symbol}: ${usd_total:.2f}")
+                
+                if "nfts" in data:
+                    nft_count = len(data["nfts"])
+                    print(f"   🖼️  NFT: {nft_count}")
+                    if nft_count > 0:
+                        print("   Примеры NFT:")
+                        for i, nft in enumerate(data["nfts"][:], 1):
+                            print(nft)
+                            collection = nft.get("collection_name", "N/A")
+                            chain = nft.get("chain_name", "N/A")
+                            print(f"      {i}. {collection} ({chain})")
+                
+                return True
+            else:
+                print(f"❌ Ошибка при получении портфолио: {response.status_code}")
+                try:
+                    error_detail = response.json()
+                    print(f"Детали ошибки: {error_detail}")
+                except:
+                    print(f"Текст ошибки: {response.text}")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка при получении портфолио: {e}")
+            return False
+
     async def test_create_chat(self):
         """Тест создания чата"""
         print("\n💬 Тестируем создание чата...")
@@ -542,6 +596,7 @@ class APITester:
         
         print("\n👤 USER ROUTER (/user):")
         print("  5. Получение профиля пользователя")
+        print("  15. Получение портфолио пользователя")
         
         print("\n💬 CHAT ROUTER (/chat):")
         print("  6. Создание чата")
@@ -583,6 +638,7 @@ class APITester:
             12: ("Получение типов задач", self.test_get_task_types),
             13: ("Получение событий пользователя", self.test_get_user_events),
             14: ("Проверка статуса чата", self.test_get_chat_status),
+            15: ("Получение портфолио пользователя", self.test_get_user_portfolio),
         }
         
         successful_tests = 0

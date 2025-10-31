@@ -8,3 +8,4 @@ from .redis_exceptions import *
 from .llm_exceptions import *
 from .indexer_exceptions import *
 from .base_exceptions import *
+from .mcp_exceptions import *

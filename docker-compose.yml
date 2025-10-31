@@ -38,7 +38,7 @@ services:
     container_name: chatplatform_app
     restart: unless-stopped
     ports:
-      - "${APP_PORT}:80"
+      - "${APP_PORT}:${APP_PORT}"
     env_file:
       - .env
     environment:

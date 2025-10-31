@@ -1,6 +1,10 @@
-from dto import UserEntity
+import json
+
+from dto import UserEntity, UserProfile
 from persistence import UserDAO
-from exceptions import UserNotFoundError, UserEmailAlreadyExistsError
+from exceptions import UserNotFoundError, UserEmailAlreadyExistsError, MCPResponseError
+from clients import MCPClient
+from utils.portfolio_utils import json_to_user_profile
 
 
 class UserService:
@@ -70,3 +74,28 @@ class UserService:
         user.remaining_chat_credits += delta
         await self.user_dao.update(user)
         return user.remaining_chat_credits
+
+    @staticmethod
+    async def get_user_profile(wallet_address: str) -> UserProfile:
+        mcp_client = MCPClient()
+        await mcp_client.setup_default_providers()
+        try:
+            raw_data = await mcp_client.execute_tool(
+                "opensea_get_profile",
+                {
+                    'address': wallet_address,
+                    'includes': [
+                        'items',
+                        'collections',
+                        'activity',
+                        'listings',
+                        'offers',
+                        'offers_received',
+                        'balances'
+                    ]
+                }
+            )
+            data = json.loads(raw_data[0].text)
+        except Exception as e:
+            raise MCPResponseError(f"Failed to opensea_get_profile: {e}")
+        return json_to_user_profile(data)

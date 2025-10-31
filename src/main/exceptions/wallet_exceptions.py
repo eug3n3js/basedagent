@@ -8,3 +8,6 @@ class WalletError(BaseAppException):
 class WalletVerificationError(WalletError):
     pass
 
+
+class InvalidAddressError(WalletError):
+    pass
