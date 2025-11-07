@@ -40,10 +40,16 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
     if isinstance(exc, (
             InvalidCredentialsError, InvalidTokenError, TokenExpiredError,
             WalletSignatureError, InvalidVerificationCodeError)):
-        return JSONResponse(
+        response = JSONResponse(
             status_code=401,
             content={"detail": str(exc), "type": "auth_error"}
         )
+        # Явно добавляем CORS заголовки для 401 ошибок
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
     
     if isinstance(exc, ChatAccessDeniedError):
         return JSONResponse(
@@ -52,10 +58,16 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
         )
     
     if isinstance(exc, InsufficientCreditsError):
-        return JSONResponse(
+        response = JSONResponse(
             status_code=402,
             content={"detail": str(exc), "type": "insufficient_credits_error"}
         )
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+        
     
     if isinstance(exc, (ChatLimitExceededError, PendingUserError)):
         return JSONResponse(
