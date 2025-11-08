@@ -1,229 +1,248 @@
-# ChatPlatform
+# BasedAgent
 
-A platform for chatting with AI agents, using authentication via EVM wallets.
+A crypto AI copilot platform for on-chain analytics, wallet insights, NFT intelligence, and X-account influence checks. Users can chat with AI agents using EVM wallet authentication.
 
-## Features
+## 🚀 Features
 
-- 🔐 **Wallet authentication**: Sign-in and registration via EVM wallet signature only
-- 💬 **Chat system**: Create and manage chats with AI agents
-- 📊 **Rate limiting**: Control usage of AI messages and API calls
-- 🚀 **High performance**: Asynchronous architecture on FastAPI
-- 🐳 **Docker**: Full containerization for easy deployment
-- 🧪 **Testing**: Unit test coverage of core components
+- 🔐 **Wallet Authentication**: Sign-in and registration via EVM wallet signature only
+- 💬 **AI Chat System**: Create and manage conversations with AI agents
+- 🔍 **On-Chain Analytics**: Real-time blockchain data analysis
+- 🖼️ **NFT Intelligence**: Collection analysis via OpenSea MCP integration
+- 🐦 **X/Twitter Analysis**: Account influence checks via TweetScout
+- 📧 **Email Verification**: Optional email verification for user accounts
+- 🚀 **High Performance**: Asynchronous architecture built on FastAPI
+- 🐳 **Docker Support**: Full containerization for easy deployment
 
-## Tech stack
+## 🛠️ Tech Stack
 
 - **Backend**: FastAPI (Python 3.11)
 - **Database**: PostgreSQL 15
 - **Caching**: Redis 7
-- **Auth**: JWT + EVM signatures
+- **Authentication**: JWT (RS256) + EVM wallet signatures
+- **AI/LLM**: OpenAI GPT models
+- **External Services**: 
+  - OpenSea MCP (NFT data)
+  - TweetScout API (Twitter analytics)
+  - GraphQL endpoint (on-chain data)
 - **Containerization**: Docker + Docker Compose
-- **Testing**: Pytest
 
-## Architecture
+## 📐 Architecture
 
-The project follows Clean Architecture principles:
+The project follows Clean Architecture principles with clear separation of concerns:
 
 ```
 src/main/
 ├── domain/          # Data models (SQLAlchemy ORM)
-├── services/        # Business logic
-├── routers/         # API endpoints
-├── persistence/     # Data access (DAO)
-├── dto/            # API models (DTOs)
-├── clients/        # External services
-├── exceptions/     # Custom exceptions
-└── utils/          # Utilities
+├── services/        # Business logic layer
+├── routers/         # API endpoints (FastAPI routes)
+├── persistence/     # Data access layer (DAO pattern)
+├── dto/            # API models (DTOs and converters)
+├── clients/        # External service clients
+│   ├── llm_client.py
+│   ├── mcp_client.py
+│   ├── indexer_client.py
+│   ├── email_client.py
+│   └── redis_client.py
+├── exceptions/     # Custom exception classes
+├── constants/      # Application constants
+└── utils/          # Utility functions
 ```
 
-## Core entities
+## 📦 Core Entities
 
 ### User
-- `wallet_address`: EVM wallet address (unique)
-- `email`: User email (optional)
-- `ai_messages_limit`: Limit for AI messages
-- `ai_messages_used`: Used AI messages
-- `api_calls_limit`: Limit for API calls
-- `api_calls_used`: Used API calls
+- `wallet_address`: EVM wallet address (unique identifier)
+- `email`: User email (optional, unique, can be verified)
+- `remaining_chat_credits`: Remaining chat credits balance (float)
+- `created_at`: Account creation timestamp
+- `chats`: Relationship to user's chats
 
 ### Chat
-- `title`: Chat title
-- `user_id`: Owner user ID
-- `message_count`: Number of messages
-- `created_at`, `updated_at`: Timestamps
+- `title`: Chat title (auto-generated from messages)
+- `user_id`: Owner user reference (foreign key)
+- `created_at`: Chat creation timestamp
+- `messages`: Relationship to chat messages
 
 ### Message
-- `content`: Message content
-- `role`: Sender role (USER/AI)
-- `chat_id`: Chat ID
-- `user_id`: User ID
-- `model_used`: AI model used (for AI messages)
-- `tokens_used`: Number of tokens (for AI messages)
+- `content`: Message text content
+- `role`: Sender role (`USER` or `AI` - MessageRole enum)
+- `chat_id`: Parent chat reference (foreign key)
+- `created_at`: Message creation timestamp
 
-## API endpoints
+## 🔌 API Endpoints
 
-### Auth (`/auth`)
+### Authentication (`/auth`)
+- `GET /auth/message` - Get message for wallet signing
 - `POST /auth/authenticate` - Authenticate (sign-in or signup) via wallet signature
-- `POST /auth/add-email` - Add email to an existing user
-- `GET /auth/message` - Get a message for signing
+- `POST /auth/send-email-code` - Send email verification code
+- `POST /auth/verify-email-code` - Verify email code and add email to account
 
 ### Users (`/user`)
-- `GET /user/profile` - Get profile
-- `PUT /user/profile` - Update profile
-- `GET /user/limits` - Get limits
-- `GET /user/wallet/{address}` - Get user by wallet address
+- `GET /user/me` - Get current user profile
+- `GET /user/portfolio` - Get user portfolio data
 
 ### Chats (`/chat`)
-- `POST /chat/` - Create a chat
-- `GET /chat/` - Get user's chats
-- `GET /chat/recent` - Recent chats
-- `GET /chat/{id}` - Get chat by ID
-- `PUT /chat/{id}` - Update chat
-- `DELETE /chat/{id}` - Delete chat
+- `GET /chat/chats` - Get all user's chats (with pagination: `limit`, `offset`)
+- `POST /chat/new` - Create a new chat
+- `GET /chat/tasks` - Get available task types
+- `GET /chat/{chat_id}` - Get chat by ID
+- `GET /chat/{chat_id}/status` - Get chat processing status
+- `GET /chat/{chat_id}/messages` - Get messages in a chat (with pagination)
+- `POST /chat/{chat_id}/message/new` - Send a new message to chat
+- `POST /chat/{chat_id}/message/new/{task_name}` - Send a message with specific task type
 
-### Messages (`/message`)
-- `POST /message/` - Create a user message
-- `GET /message/chat/{id}` - Messages of a chat
-- `GET /message/chat/{id}/full` - Chat with messages
-- `GET /message/chat/{id}/recent` - Recent messages
-- `GET /message/{id}` - Get message by ID
-- `PUT /message/{id}` - Update message
-- `DELETE /message/{id}` - Delete message
+### Events (`/events`)
+- `GET /events/all` - Get all user events (deposit and spend events)
 
-## Setup and run
+## 🚀 Quick Start
 
-### 1. Clone the repository
+### Prerequisites
+
+- Python 3.11+
+- Docker and Docker Compose
+- PostgreSQL 15 (if running without Docker)
+- Redis 7 (if running without Docker)
+- OpenSSL (for JWT key generation)
+
+### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
-cd ChatPlatform/ChatApp
+cd basedagent
 ```
 
-### 2. Configure environment
-```bash
-cp .env .env
-# Edit the .env file with your settings
-```
+### 2. Environment Configuration
 
-### 3. Generate JWT keys
+Create a `.env` file in the root directory with the required environment variables (see [Configuration](#-configuration) section).
+
+### 3. Generate JWT Keys
+
 ```bash
+# Create keys directory
 mkdir -p keys
-# Generate RSA keys for JWT
+
+# Generate RSA private key
 openssl genrsa -out keys/private.pem 2048
+
+# Generate RSA public key
 openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 ```
 
-### 4. Run with Docker Compose
+### 4. Run with Docker Compose (Recommended)
+
 ```bash
+# Start all services (PostgreSQL, Redis, App)
 docker-compose up -d
+
+# View logs
+docker-compose logs -f app
+
+# Stop services
+docker-compose down
 ```
 
-### 5. Run in development mode
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
 
-# Install dependencies
-pip install -r requirements.txt
+The API will be available at `http://localhost:8000`
 
-# Start the application (choose one):
+## ⚙️ Configuration
 
-# Option 1: via run.py (recommended)
-python run.py
-
-# Option 2: via start_server.py
-python start_server.py
-
-# Option 3: via uvicorn directly
-python -m uvicorn src.main.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-## Testing
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src
-
-# Run a specific test
-pytest tests/test_auth_service.py
-```
-
-## Configuration
-
-Main environment variables:
+### Environment Variables
 
 ```env
-# Database
+# Database Configuration
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=chatplatform
 POSTGRES_USER=chatplatform_user
 POSTGRES_PASSWORD=chatplatform_password
 
-# Redis
+# Redis Configuration
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=chatplatform_redis_password
 
-# JWT
+# JWT Configuration
 JWT_PUBLIC_KEY_PATH=./keys/public.pem
 JWT_PRIVATE_KEY_PATH=./keys/private.pem
 JWT_ALGORITHM=RS256
 JWT_EXPIRE_ACCESS=3600
 
-# Email (optional)
-EMAIL_SMTP_SERVER=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_ADDRESS=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key
 
-# App
+# OpenSea MCP Configuration
+OPENSEA_MCP_URL=your-opensea-mcp-url
+OPENSEA_BEARER_TOKEN=your-opensea-bearer-token
+
+# TweetScout Configuration
+TWEETSCOUT_API_KEY=your-tweetscout-api-key
+
+# GraphQL/Indexer Configuration
+GRAPHQL_ENDPOINT=your-graphql-endpoint
+
+# Email Configuration (Mailtrap)
+MAILTRAP_API_TOKEN=your-mailtrap-api-token
+EMAIL_FROM_ADDRESS=noreply@basedagent.io
+EMAIL_FROM_NAME=BasedAgent
+
+# Application Configuration
 APP_HOST=0.0.0.0
 APP_PORT=8000
 APP_WORKERS=1
 ENVIRONMENT=development
 ```
 
-## Rate limits
+## 💳 Credit System
 
-Each user has limits for:
-- **AI messages**: Number of messages the AI agent can send
-- **API calls**: Number of external API calls
+The platform uses a credit-based system to control resource usage:
 
-Limits are checked when:
-- Creating AI messages
-- Calling external APIs
-- Updating the profile
+- **Chat Credits**: Users have a `remaining_chat_credits` balance (float)
+- **Credit Usage**: Credits are deducted when processing messages:
+  - Base cost: 0.1 credits per message
+  - Additional costs for MCP tool usage (OpenSea, TweetScout, etc.)
+- **Credit Sources**: 
+  - Credits can be purchased via the blockchain credit system (see `creditsys/`)
+  - New users receive 2.0 credits upon registration
+- **Credit Enforcement**: Messages cannot be processed if user has insufficient credits (balance <= 0)
 
-## Security
+## 🔒 Security
 
-- **JWT tokens**: RS256 algorithm with private/public keys
-- **Signature verification**: Validate EVM signatures for authentication
-- **CORS**: Configured for frontend integration
-- **Data validation**: Pydantic models for all inputs
-- **Error handling**: Global exception handling
+- **JWT Authentication**: RS256 algorithm with RSA private/public key pairs
+- **EVM Signature Verification**: Cryptographic validation of wallet signatures
+- **CORS**: Configurable CORS middleware for frontend integration
+- **Input Validation**: Pydantic models for all API inputs
+- **Error Handling**: Global exception handler with proper error responses
+- **SQL Injection Protection**: SQLAlchemy ORM with parameterized queries
 
-## Development
+## 🏗️ Development
 
-### Project structure
-- Follows Clean Architecture principles
-- Layered separation: domain, services, routers, persistence
-- Uses dependency injection
-- Singleton pattern for services
+### Project Structure Guidelines
 
-### Adding new features
-1. Create a model in `domain/`
-2. Add a DTO in `dto/models/`
-3. Create a DAO in `persistence/`
-4. Implement a service in `services/`
-5. Add a router in `routers/`
-6. Write tests in `tests/`
+The project follows Clean Architecture principles:
 
-## License
+1. **Domain Layer** (`domain/`): Core business entities and models
+2. **DTO Layer** (`dto/`): Data transfer objects for API communication
+3. **Persistence Layer** (`persistence/`): Data access objects (DAO pattern)
+4. **Service Layer** (`services/`): Business logic implementation
+5. **Router Layer** (`routers/`): API endpoint definitions
+6. **Client Layer** (`clients/`): External service integrations
+
+### Code Style
+
+- Follow PEP 8 Python style guide
+- Use type hints for all functions
+- Document complex functions with docstrings
+- Keep functions focused and single-purpose
+
+## 📚 Additional Resources
+
+- **Credit System**: See `creditsys/README.md` for blockchain credit system documentation
+
+
+## 📄 License
 
 MIT License
+
+---
+
+**Note**: This project is for informational purposes only and does not provide financial advice.

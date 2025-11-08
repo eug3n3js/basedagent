@@ -77,3 +77,5 @@ node_modules/
 # Temporary files
 *.tmp
 *.temp
+
+api_tester.py
